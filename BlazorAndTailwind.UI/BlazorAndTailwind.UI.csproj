@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<NpmLastInstall>node_modules/./last-install</NpmLastInstall>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.0" PrivateAssets="all" />
+	</ItemGroup>
+
+	<Target Name="CheckNPMIsInstalled" BeforeTargets="InstallNPM">
+		<Exec Command="npm -v" ContinueOnError="true">
+			<Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+		</Exec>
+
+		<Error Condition="'$(ErrorCode)' != '0'" Text="You must install npm to run this task" />
+	</Target>
+
+	<Target Name="InstallNPM" BeforeTargets="BuildTailwindCSS">
+		<Exec Command="npm install" />
+		<Touch Files="$(NpmLastInstall)" AlwaysCreate="true" />
+	</Target>
+
+	<Target Name="BuildTailwindCSS" BeforeTargets="Compile">
+		<Exec Command="npm run buildcss:debug" Condition="'$(Configuration)' == 'Debug'" />
+		<Exec Command="npm run buildcss:release" Condition="'$(Configuration)' == 'Release'" />
+	</Target>
+</Project>
